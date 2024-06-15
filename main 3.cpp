@@ -265,51 +265,47 @@ string getCursoById(int id) {
 }
 
 void gravarContribuicoesPorCurso() {
-    NodeContribuicao* temp = headContribuicoes;
+    // Abre os arquivos em modo sobrescrever (overwrite)
+    ofstream arquivoDSM("contribuintes_DSM.txt");
+    ofstream arquivoSI("contribuintes_SI.txt");
+    ofstream arquivoGE("contribuintes_GE.txt");
 
-    while (temp != NULL) {
-        int idParticipante = temp->id;
-        string curso = getCursoById(idParticipante);
-
-        if (curso == "DSM") {
-            ofstream arquivoDSM("contribuintes_DSM.txt", ios::app); // Modo append para adicionar ao final
-            if (!arquivoDSM.is_open()) {
-                cout << "Erro ao abrir arquivo contribuintes_DSM.txt" << endl;
-                return;
-            }
-            arquivoDSM << idParticipante << " "
-                       << temp->mes << " "
-                       << temp->ano << " "
-                       << temp->valor << endl;
-            arquivoDSM.close();
-        } else if (curso == "SI") {
-            ofstream arquivoSI("contribuintes_SI.txt", ios::app); // Modo append para adicionar ao final
-            if (!arquivoSI.is_open()) {
-                cout << "Erro ao abrir arquivo contribuintes_SI.txt" << endl;
-                return;
-            }
-            arquivoSI << idParticipante << " "
-                      << temp->mes << " "
-                      << temp->ano << " "
-                      << temp->valor << endl;
-            arquivoSI.close();
-        } else if (curso == "GE") {
-            ofstream arquivoGE("contribuintes_GE.txt", ios::app); // Modo append para adicionar ao final
-            if (!arquivoGE.is_open()) {
-                cout << "Erro ao abrir arquivo contribuintes_GE.txt" << endl;
-                return;
-            }
-            arquivoGE << idParticipante << " "
-                      << temp->mes << " "
-                      << temp->ano << " "
-                      << temp->valor << endl;
-            arquivoGE.close();
-        } else {
-            cout << "Curso inválido para o participante com ID " << idParticipante << endl;
-        }
-
-        temp = temp->proximo;
+    // Verifica se os arquivos foram abertos corretamente
+    if (!arquivoDSM.is_open() || !arquivoSI.is_open() || !arquivoGE.is_open()) {
+        cout << "Erro ao abrir arquivos de saída." << endl;
+        return;
     }
+
+    NodeContribuicao* temp = headContribuicoes;
+    while (temp != NULL) {
+        if (temp->contribuicao.idParticipante != -1) {
+            std::string curso = getCursoById(temp->contribuicao.idParticipante);
+
+            if (curso == "DSM") {
+                arquivoDSM << temp->contribuicao.idParticipante << " "
+                           << temp->contribuicao.mes << " "
+                           << temp->contribuicao.ano << " "
+                           << temp->contribuicao.valor << endl;
+            } else if (curso == "SI") {
+                arquivoSI << temp->contribuicao.idParticipante << " "
+                          << temp->contribuicao.mes << " "
+                          << temp->contribuicao.ano << " "
+                          << temp->contribuicao.valor << endl;
+            } else if (curso == "GE") {
+                arquivoGE << temp->contribuicao.idParticipante << " "
+                          << temp->contribuicao.mes << " "
+                          << temp->contribuicao.ano << " "
+                          << temp->contribuicao.valor << endl;
+            } else {
+                cout << "Curso desconhecido para o ID: " << temp->contribuicao.idParticipante << endl;
+            }
+        }
+        temp = temp->next;
+    }
+
+    arquivoDSM.close();
+    arquivoSI.close();
+    arquivoGE.close();
 
     cout << "Contribuições gravadas com sucesso:" << endl;
     cout << " - contribuintes_DSM.txt" << endl;
